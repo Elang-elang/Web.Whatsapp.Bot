@@ -14,7 +14,7 @@ import random
 from datetime import datetime
 
 # Konfigurasi path profil Firefox untuk menyimpan session
-PATH_SAVING_SESSION = "~/.cache/mozilla/firefox/uvisv5e1.whatsapp-bot/"
+PATH_SAVING_SESSION = "~/.cache/mozilla/firefox/WI3YEIhY.Profile 1"
 FIREFOX_PROFILE_DIR = os.path.expanduser(PATH_SAVING_SESSION)
 
 # Konfigurasi waktu
@@ -267,7 +267,7 @@ def send_message_to_chat(driver, phone_number, message):
         message_box = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((
                 By.XPATH,
-                "//div[@contenteditable='true' and @data-tab='10']"
+                "//div[@contenteditable='true' and @data-testid='conversation-compose-box-input']"
             ))
         )
         
@@ -317,7 +317,7 @@ def send_message_by_number(driver, target_number, message):
         search_box = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((
                 By.XPATH,
-                "//input[@placeholder='Cari atau mulai chat baru']"
+                "//input[(@role='textbox' and @dir='ltr') or contains(@class, 'html-input')]"
             ))
         )
         search_box.click()
@@ -432,7 +432,7 @@ def wait_for_pairing_code(driver, timeout=60):
     print("\n🔍 Menunggu Pairing Code dari WhatsApp...")
     
     start_time = time.time()
-    code_cells_selector = (By.CSS_SELECTOR, "div[data-testid='link-with-phone-number-code-cells']")
+    code_cells_selector = (By.CSS_SELECTOR, "div[data-link-code]")
     
     while time.time() - start_time < timeout:
         time.sleep(1)
@@ -442,49 +442,25 @@ def wait_for_pairing_code(driver, timeout=60):
         
         try:
             cells = driver.find_elements(*code_cells_selector)
+            raw_code = cells.get_attribute("data-link-code")
             
-            if cells and len(cells) >= 4:
-                code_parts = []
-                for cell in cells[:4]:
-                    text = cell.text.strip()
-                    if text and text.isdigit():
-                        code_parts.append(text)
-                
-                if len(code_parts) == 4:
-                    pairing_code = ''.join(code_parts)
-                    
-                    if len(pairing_code) == 8 and pairing_code.isdigit():
-                        print("\n" + "="*60)
-                        print("🎉 PAIRING CODE DITEMUKAN!")
-                        print("="*60)
-                        print(f"📱 KODE: {pairing_code}")
-                        print("="*60)
-                        print("\n📌 LANGKAH SELANJUTNYA:")
-                        print("1. Buka WhatsApp di HP")
-                        print("2. Pengaturan > Perangkat Tertaut")
-                        print("3. Pilih 'Tautkan dengan nomor telepon'")
-                        print(f"4. Masukkan kode: {pairing_code}")
-                        print("="*60 + "\n")
-                        
-                        with open("pairing_code.txt", "w") as f:
-                            f.write(pairing_code)
-                        return True
+            pairing_code = raw_code.replace(",", "")
             
-            code_elements = driver.find_elements(By.CSS_SELECTOR, "[data-link-code]")
-            for elem in code_elements:
-                raw_code = elem.get_attribute("data-link-code")
-                if raw_code:
-                    pairing_code = raw_code.replace(",", "").strip()
-                    if len(pairing_code) == 8 and pairing_code.isdigit():
-                        print("\n" + "="*60)
-                        print("🎉 PAIRING CODE DITEMUKAN!")
-                        print("="*60)
-                        print(f"📱 KODE: {pairing_code}")
-                        print("="*60 + "\n")
-                        
-                        with open("pairing_code.txt", "w") as f:
-                            f.write(pairing_code)
-                        return True
+            print("\n" + "="*60)
+            print("🎉 PAIRING CODE DITEMUKAN!")
+            print("="*60)
+            print(f"📱 KODE: {pairing_code}")
+            print("="*60)
+            print("\n📌 LANGKAH SELANJUTNYA:")
+            print("1. Buka WhatsApp di HP")
+            print("2. Pengaturan > Perangkat Tertaut")
+            print("3. Pilih 'Tautkan dengan nomor telepon'")
+            print(f"4. Masukkan kode: {pairing_code}")
+            print("="*60 + "\n")
+            
+            with open("pairing_code.txt", "w") as f:
+                f.write(pairing_code)
+            return True
                         
         except Exception as e:
             pass

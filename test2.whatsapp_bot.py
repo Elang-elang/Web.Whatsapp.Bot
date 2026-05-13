@@ -284,9 +284,12 @@ def click_login_with_phone_button(driver):
         )
         print(f"✅ Tombol ditemukan: {element}")
         element.click()
+        print(dir(element))
+        help(element)
         print("✅ Tombol 'Log in with phone number' diklik")
         return True
-    except:
+    except Exception as e:
+        print(repr(e))
         pass
     
     print("❌ Tombol 'Log in with phone number' tidak ditemukan")
